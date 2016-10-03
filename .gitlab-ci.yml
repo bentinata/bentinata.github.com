@@ -4,6 +4,8 @@ pages:
   stage: deploy
   script:
     - cat .gitlab-ignore | xargs rm
+    - mkdir .public
+    - mv * .public
     - mv .public public
   artifacts:
     paths:
