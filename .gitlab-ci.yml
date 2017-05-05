@@ -1,9 +1,11 @@
 image: alpine:latest
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 pages:
   stage: deploy
   script:
-    - git submodule update --init --recursive --remote
     - mkdir .public
     - mv * .public
     - mv .well-known .public
