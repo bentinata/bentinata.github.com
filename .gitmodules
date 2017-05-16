@@ -1,3 +1,6 @@
 [submodule "svg"]
 	path = svg
 	url = https://gitlab.com/bentinata/svg
+[submodule "dotfiles"]
+	path = dotfiles
+	url = https://gitlab.com/bentinata/dotfiles
