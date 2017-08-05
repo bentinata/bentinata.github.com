@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <canvas>
-    </canvas>
+    <canvas id="typical"></canvas>
+    <canvas id="shuffle"></canvas>
+    <canvas id="ＡＲＴ"></canvas>
     <script>
 const size = 4;
 const width = 256;
 const height = 128;
 
-const canvas = document.getElementsByTagName(`canvas`).item(0);
-const ctx = canvas.getContext(`2d`);
-canvas.width = width * size;
-canvas.height = height * size;
+const [ctxTypical, ctxShuffle, ctxＡＲＴ] = [...document.getElementsByTagName(`canvas`)]
+  .map(canvas => {
+    canvas.width = width * size;
+    canvas.height = height * size;
+    return canvas.getContext(`2d`);
+  });
 
 function convert(color) {
   // I don't really like bitwise.
   const r = (color >> 7 | 7);
   const g = (color >> 2 & 255 | 7);
   const b = (color << 3 & 255 | 7);
-  return (r << 16) + (g << 8) + b;
-  //return {r, g, b};
+  return `rgb(${r},${g},${b})`;
 }
 
 function locate(n) {
@@ -45,12 +47,15 @@ const color = [...Array(width * height)]
   .map((value, index) => convert(index));
 // .map((value, index) => index * 8);
 
-const pos = shuffle(color.map((value, index) => locate(index)));
+const posTypical = color.map((value, index) => locate(index));
+const posShuffle = shuffle([...posTypical]);
 
 color.forEach((value, index) => {
-  ctx.fillStyle = `#${value.toString(16).padStart(6, 0)}`;
-  //ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-  ctx.fillRect(...pos[index], size, size);
+  ctxTypical.fillStyle = value;
+  ctxTypical.fillRect(...posTypical[index], size, size);
+
+  ctxShuffle.fillStyle = value;
+  ctxShuffle.fillRect(...posShuffle[index], size, size);
 });
     </script>
   </body>
