@@ -29,7 +29,7 @@ const color = [...Array(width * height)]
 color.forEach((value, index) => {
   ctx.fillStyle = `#${value.toString(16).padStart(6, 0)}`;
   //ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-  ctx.fillRect((index / height) * size, (index & (height - 1)) * size, size, size);
+  ctx.fillRect((index >> Math.log2(height)) * size, (index & (height - 1)) * size, size, size);
 });
     </script>
   </body>
