@@ -29,14 +29,28 @@ function locate(n) {
   return [x, y];
 }
 
+function shuffle(array) {
+  let index = -1;
+  const lastIndex = array.length - 1;
+  while (++index < array.length) {
+    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+    const value = array[rand];
+    array[rand] = array[index];
+    array[index] = value;
+  }
+  return array;
+}
+
 const color = [...Array(width * height)]
   .map((value, index) => convert(index));
 // .map((value, index) => index * 8);
 
+const pos = shuffle(color.map((value, index) => locate(index)));
+
 color.forEach((value, index) => {
   ctx.fillStyle = `#${value.toString(16).padStart(6, 0)}`;
   //ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-  ctx.fillRect(...locate(index), size, size);
+  ctx.fillRect(...pos[index], size, size);
 });
     </script>
   </body>
