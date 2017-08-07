@@ -32,6 +32,7 @@ function locate(n) {
 }
 
 function shuffle(array) {
+  array = [...array];
   let index = -1;
   const lastIndex = array.length - 1;
   while (++index < array.length) {
