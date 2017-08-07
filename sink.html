@@ -3,13 +3,15 @@
   <body>
     <canvas id="typical"></canvas>
     <canvas id="shuffle"></canvas>
-    <canvas id="ＡＲＴ"></canvas>
+    <canvas id="Ａｒｔ"></canvas>
     <script>
+'use strict';
+
 const size = 4;
 const width = 256;
 const height = 128;
 
-const [ctxTypical, ctxShuffle, ctxＡＲＴ] = [...document.getElementsByTagName(`canvas`)]
+const [ctxTypical, ctxShuffle, ctxＡｒｔ] = [...document.getElementsByTagName(`canvas`)]
   .map(canvas => {
     canvas.width = width * size;
     canvas.height = height * size;
@@ -44,20 +46,38 @@ function shuffle(array) {
   return array;
 }
 
+function fillContext(ctx, map) {
+  map.forEach(value => {
+    ctx.fillStyle = value.color;
+    ctx.fillRect(...value.pos, size, size);
+  });
+}
+
 const color = [...Array(width * height)]
   .map((value, index) => convert(index));
 // .map((value, index) => index * 8);
 
-const posTypical = color.map((value, index) => locate(index));
-const posShuffle = shuffle([...posTypical]);
+const mapTypical = [...color]
+  .map((color, index) => ({
+    color,
+    pos: locate(index),
+  }));
 
-color.forEach((value, index) => {
-  ctxTypical.fillStyle = value;
-  ctxTypical.fillRect(...posTypical[index], size, size);
+const mapShuffle = shuffle(color)
+  .map((color, index) => ({
+    color,
+    pos: locate(index),
+  }));
 
-  ctxShuffle.fillStyle = value;
-  ctxShuffle.fillRect(...posShuffle[index], size, size);
-});
+const mapＡｒｔ = [...color]
+  .map((color, index) => ({
+    color,
+    pos: locate(index),
+  }));
+
+fillContext(ctxTypical, mapTypical);
+fillContext(ctxShuffle, mapShuffle);
+fillContext(ctxＡｒｔ, mapＡｒｔ);
     </script>
   </body>
 </html>
