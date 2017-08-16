@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
   <body>
+    <canvas id="art"></canvas>
     <canvas id="typical"></canvas>
     <canvas id="shuffle"></canvas>
-    <canvas id="Ａｒｔ"></canvas>
     <script>
 'use strict';
 
@@ -11,12 +11,25 @@ const size = 4;
 const width = 256;
 const height = 128;
 
-const [ctxTypical, ctxShuffle, ctxＡｒｔ] = [...document.getElementsByTagName(`canvas`)]
-  .map(canvas => {
-    canvas.width = width * size;
-    canvas.height = height * size;
-    return canvas.getContext(`2d`);
-  });
+function near(dim, coord) {
+  const pos = dim.map((v, i) =>
+    dim
+      .slice(0, i)
+      .reduce((acc, val) => Math.floor(acc / val), coord) % v
+  );
+
+  return [...Array(dim.length * 2)]
+    .map((v, k) => {
+      const copy = [...pos];
+      copy[k >> 1] -= 1 - 2 * (k % 2);
+      return copy;
+    })
+    .filter(x => x.some((v, i) => v > 0 && v < dim[i] - 1))
+    .map(x => x.reduce((acc, val, i) =>
+      acc + val * dim.slice(0, i)
+        .reduce((acc, val) => acc * val, 1)
+    ));
+}
 
 function convert(color) {
   // I don't really like bitwise.
@@ -27,8 +40,8 @@ function convert(color) {
 }
 
 function locate(n) {
-  const x = (n >> Math.log2(height)) * size;
-  const y = (n & (height - 1)) * size;
+  const x = (n & (height - 1)) * size;
+  const y = (n >> Math.log2(height)) * size;
 
   return [x, y];
 }
@@ -36,48 +49,82 @@ function locate(n) {
 function shuffle(array) {
   array = [...array];
   let index = -1;
-  const lastIndex = array.length - 1;
-  while (++index < array.length) {
-    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
-    const value = array[rand];
-    array[rand] = array[index];
-    array[index] = value;
+
+  while (array.length > ++index) {
+    const rand = index + Math.floor(Math.random() * (array.length - index));
+    [array[index], array[rand]] = [array[rand], array[index]];
   }
+
   return array;
 }
 
-function fillContext(ctx, map) {
-  map.forEach(value => {
-    ctx.fillStyle = value.color;
-    ctx.fillRect(...value.pos, size, size);
+const possible = [...Array(32**3)];
+const colors = possible.map((value, index) => convert(index));
+const positions = possible.map((value, index) => locate(index));
+const maps = {};
+
+maps.typical = positions
+  .map((pos, index) => ({ pos, color: colors[index] }));
+
+maps.shuffle = shuffle(positions)
+  .map((pos, index) => ({ pos, color: colors[index] }));
+
+const canvTypical = document.getElementById(`typical`);
+const canvShuffle = document.getElementById(`shuffle`);
+
+[canvTypical, canvShuffle].forEach(canvas => {
+  canvas.width = width * size;
+  canvas.height = height * size;
+  const ctx = canvas.getContext(`2d`);
+
+  maps[canvas.id].forEach(data => {
+    ctx.fillStyle = data.color;
+    ctx.fillRect(...data.pos, size, size);
   });
+});
+
+const oColors = colors.reduce((a, v, i) => (a[i]=v,a), {});
+const oPositions = positions.reduce((a, v, i) => (a[i] = v, a), {});
+let pCol = Math.floor(Math.random() * colors.length);
+let pPos = Math.floor(Math.random() * positions.length);
+maps.art = [];
+
+const canvArt = document.getElementById(`art`);
+canvArt.width = width * size;
+canvArt.height = height * size;
+const ctxArt = canvArt.getContext(`2d`);
+
+function paint() {
+  ctxArt.fillStyle = oColors[pCol];
+  ctxArt.fillRect(...oPositions[pPos], size, size);
+
+  delete oColors[pCol];
+  delete oPositions[pPos];
+
+  let kColors = Object.keys(oColors);
+  let kPositions = Object.keys(oPositions);
+
+  let nearColors = near([32, 32, 32], pCol)
+    .filter(index => !!oColors[index]);
+
+  let nearPositions = near([width, height], pPos)
+    .filter(index => !!oPositions[index]);
+
+  if (nearColors.length > 0)
+    pCol = shuffle(nearColors).pop();
+  else
+    pCol = shuffle(kColors).pop();
+
+  if (nearPositions.length > 0)
+    pPos = shuffle(nearPositions).pop();
+  else
+    pPos = shuffle(kPositions).pop();
+
+  if (kColors.length > 0)
+    window.requestAnimationFrame(paint);
 }
 
-const color = [...Array(width * height)]
-  .map((value, index) => convert(index));
-// .map((value, index) => index * 8);
-
-const mapTypical = [...color]
-  .map((color, index) => ({
-    color,
-    pos: locate(index),
-  }));
-
-const mapShuffle = shuffle(color)
-  .map((color, index) => ({
-    color,
-    pos: locate(index),
-  }));
-
-const mapＡｒｔ = [...color]
-  .map((color, index) => ({
-    color,
-    pos: locate(index),
-  }));
-
-fillContext(ctxTypical, mapTypical);
-fillContext(ctxShuffle, mapShuffle);
-fillContext(ctxＡｒｔ, mapＡｒｔ);
+paint();
     </script>
   </body>
 </html>
