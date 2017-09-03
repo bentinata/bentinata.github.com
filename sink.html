@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf8">
+  </head>
   <body>
     <canvas id="art"></canvas>
     <canvas id="typical"></canvas>
@@ -40,8 +43,8 @@ function convert(color) {
 }
 
 function locate(n) {
-  const x = (n & (height - 1)) * size;
-  const y = (n >> Math.log2(height)) * size;
+  const x = (n & (width - 1)) * size;
+  const y = (n >> Math.log2(width)) * size;
 
   return [x, y];
 }
