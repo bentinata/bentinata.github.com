@@ -19,6 +19,8 @@ html {
 
     <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
     <script>
+const names = heroes => heroes.map(hero => hero.name.replace(`npc_dota_hero_`, ``))
+
 const load = heroes => {
   heroes.forEach(name => {
     $(`#pool`).append(`<img src="//cdn.dota2.com/apps/dota2/images/heroes/${name}_full.png"></img>`)
@@ -31,10 +33,6 @@ const load = heroes => {
     })
 }
 
-const mapHeroes = yql => yql.query.results.img.map(x => x.src.match(/[a-z_]+.png/)[0].replace(`_sb.png`,``))
-
-const query = `select src from html where url='dota2.com/heroes' and xpath='//img[contains(@class,"heroHoverSmall")]'`
-
 $(document).on(`click`, `img`, el => {
   const img = $(el.target)
     img.toggleClass(`no`)
@@ -46,8 +44,9 @@ $(document).on(`click`, `img`, el => {
     .join(`-`)
 })
 
-$.get(`https://query.yahooapis.com/v1/public/yql?q=${encodeURI(query)}&format=json`)
-  .then(resp => load(mapHeroes(resp)))
+$.get(`https://api.opendota.com/api/heroes`)
+  .then(names)
+  .then(load)
     </script>
   </body>
 </html>
