@@ -4,3 +4,7 @@
 [submodule "dotfiles"]
 	path = dotfiles
 	url = https://gitlab.com/bentinata/dotfiles
+[submodule "post"]
+	path = _post
+	url = https://gitlab.com/bentinata/bentinata.gitlab.io
+  branch = post
