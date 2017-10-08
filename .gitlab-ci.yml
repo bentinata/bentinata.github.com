@@ -1,15 +1,13 @@
-image: alpine:latest
+image: jekyll/minimal:3
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  JEKYLL_ENV: production
 
 pages:
   stage: deploy
   script:
-    - mkdir .public
-    - mv * .public
-    - mv .well-known .public
-    - mv .public public
+    - jekyll build -d public
   artifacts:
     paths:
       - public
